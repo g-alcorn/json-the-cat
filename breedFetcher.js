@@ -1,24 +1,28 @@
 const request = require('request');
-const apiLink = "https://api.thecatapi.com/v1/";
-let breedSearch = "breeds/search/?q=";
-let breedReq = process.argv[2];
+const apiLink = "https://api.thecatapi.com/v1/breeds/search/?q=";
 
-request(apiLink + breedSearch + breedReq, (err, response, body) => {
-  let cat = JSON.parse(body);
-  if (err) {
-    throw err;
-  }
 
-  try {
-    if (!cat.length) {
-      throw new Error('Search failed.');
+const fetchBreedDescription = function(breedName, callback) {
+  request(apiLink + breedName, (err, response, body) => {
+    let parsed = JSON.parse(body);
+    
+    if (err) {
+      callback(err, null);
+    } else {
+      if (!parsed.length) {
+        setTimeout(() => {
+          console.log("Program closing now.");
+        }, 1000);
+        callback(new Error("Search failed."), null);
+      } else {
+        let cat = parsed[0].description;
+        setTimeout(() => {
+          console.log("Program closing now.");
+        }, 1000);
+        callback(null, cat);
+      }
     }
-    console.log(cat[0].description);
-  } catch (error) {
-    console.log(error.message);
-  } finally {
-    setTimeout(() => {
-      console.log("Search finished.");
-    }, 1000);
-  }
-});
+  });
+};
+
+module.exports = { fetchBreedDescription };
